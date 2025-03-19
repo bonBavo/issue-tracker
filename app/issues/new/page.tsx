@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-import { Button, Callout, TextField, Text } from "@radix-ui/themes";
+import { Button, Callout, TextField } from "@radix-ui/themes";
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import axios from "axios";
@@ -11,10 +11,13 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/app/createIssueSchema";
 import { z } from "zod";
+import ErrorMessage from "@/app/componets/ErroMessage";
 
 type issueForm = z.infer<typeof createIssueSchema>;
+
 const NewIssuePage = () => {
   const router = useRouter();
+
   const {
     register,
     control,
@@ -23,6 +26,16 @@ const NewIssuePage = () => {
   } = useForm<issueForm>({
     resolver: zodResolver(createIssueSchema),
   });
+  const onSubmit =  handleSubmit(async (data) => {
+          try {
+              await axios.post("/api/issues", data);
+              router.push("/issues");
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (error) {
+              setError("An unexpected error occurred.");
+          }
+      })
+
   const [error, setError] = useState("");
 
   return (
@@ -38,25 +51,14 @@ const NewIssuePage = () => {
 
       <form
         className="max-w-xl space-y-3 "
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            await axios.post("/api/issues", data);
-            router.push("/issues");
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (error) {
-            setError("An unexpected error occurred.");
-          }
-        })}
+        onSubmit={onSubmit}
       >
         <TextField.Root
           placeholder="Title"
           {...register("title")}
         ></TextField.Root>
-        {errors.title && (
-          <Text as="p" color="red">
-            {errors.title.message}.
-          </Text>
-        )}
+        <ErrorMessage>{errors.title?.message}.</ErrorMessage>
+
         <Controller
           render={({ field }) => (
             <SimpleMDE placeholder="type your issue in here" {...field} />
@@ -64,11 +66,8 @@ const NewIssuePage = () => {
           name="description"
           control={control}
         />
-        {errors.description && (
-          <Text as="p" color="red">
-            {errors.description.message}
-          </Text>
-        )}
+
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
 
         <Button>submit new issue</Button>
       </form>
