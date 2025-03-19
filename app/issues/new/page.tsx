@@ -26,15 +26,15 @@ const NewIssuePage = () => {
   } = useForm<issueForm>({
     resolver: zodResolver(createIssueSchema),
   });
-  const onSubmit =  handleSubmit(async (data) => {
-          try {
-              await axios.post("/api/issues", data);
-              router.push("/issues");
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (error) {
-              setError("An unexpected error occurred.");
-          }
-      })
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      setError("An unexpected error occurred.");
+    }
+  });
 
   const [error, setError] = useState("");
 
@@ -49,10 +49,7 @@ const NewIssuePage = () => {
         </Callout.Root>
       )}
 
-      <form
-        className="max-w-xl space-y-3 "
-        onSubmit={onSubmit}
-      >
+      <form className="max-w-xl space-y-3 " onSubmit={onSubmit}>
         <TextField.Root
           placeholder="Title"
           {...register("title")}
