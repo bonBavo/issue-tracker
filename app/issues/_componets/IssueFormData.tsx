@@ -9,77 +9,74 @@ import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createIssueSchema } from "@/app/createIssueSchema";
+import { issueSchema } from "@/app/issueSchema";
 import { z } from "zod";
 import ErrorMessage from "@/app/componets/ErroMessage";
-import {Issue} from "@prisma/client";
+import { Issue } from "@prisma/client";
 
-const SimpleMDE = dynamic(
-    () => import( "react-simplemde-editor"),
-    {ssr: false,}
-)
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
+  ssr: false,
+});
 
-type issueFormData = z.infer<typeof createIssueSchema>;
+type issueFormData = z.infer<typeof issueSchema>;
 
+const IssueForm = ({ issue }: { issue?: Issue }) => {
+  const router = useRouter();
 
-const IssueForm = ({issue}: { issue?: Issue }) => {
-    const router = useRouter();
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<issueFormData>({
+    resolver: zodResolver(issueSchema),
+  });
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      setError("An unexpected error occurred.");
+    }
+  });
 
-    const {
-        register,
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<issueFormData>({
-        resolver: zodResolver(createIssueSchema),
-    });
-    const onSubmit = handleSubmit(async (data) => {
-        try {
-            await axios.post("/api/issues", data);
-            router.push("/issues");
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-            setError("An unexpected error occurred.");
-        }
-    });
+  const [error, setError] = useState("");
 
-    const [error, setError] = useState("");
+  return (
+    <div className="max-w-xl space-y-3 mb-5">
+      {error && (
+        <Callout.Root color="red">
+          <Callout.Icon>
+            <AiOutlineInfoCircle />
+          </Callout.Icon>
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
 
-    return (
-        <div className="max-w-xl space-y-3 mb-5">
-            {error && (
-                <Callout.Root color="red">
-                    <Callout.Icon>
-                        <AiOutlineInfoCircle />
-                    </Callout.Icon>
-                    <Callout.Text>{error}</Callout.Text>
-                </Callout.Root>
-            )}
+      <form className="max-w-xl space-y-3 " onSubmit={onSubmit}>
+        <TextField.Root
+          placeholder="Title"
+          {...register("title")}
+          defaultValue={issue?.title}
+        ></TextField.Root>
+        <ErrorMessage>{errors.title?.message}.</ErrorMessage>
 
-            <form className="max-w-xl space-y-3 " onSubmit={onSubmit}>
-                <TextField.Root
-                    placeholder="Title"
-                    {...register("title")}
-                    defaultValue={issue?.title}
-                ></TextField.Root>
-                <ErrorMessage>{errors.title?.message}.</ErrorMessage>
+        <Controller
+          name="description"
+          control={control}
+          defaultValue={issue?.description}
+          render={({ field }) => (
+            <SimpleMDE placeholder="type your issue in here" {...field} />
+          )}
+        />
 
-                <Controller
-                    name="description"
-                    control={control}
-                    defaultValue={issue?.description}
-                    render={({ field }) => (
-                        <SimpleMDE placeholder="type your issue in here" {...field} />
-                    )}
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
 
-                />
-
-                <ErrorMessage>{errors.description?.message}</ErrorMessage>
-
-                <Button>submit new issue</Button>
-            </form>
-        </div>
-    );
+        <Button>submit new issue</Button>
+      </form>
+    </div>
+  );
 };
 
 export default IssueForm;
