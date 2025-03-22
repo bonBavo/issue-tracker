@@ -1,9 +1,7 @@
 import React from 'react';
 import {prisma} from "@/prisma/client";
 import {notFound} from "next/navigation";
-import {Box, Button, Card, Flex, Grid, Heading, Text} from "@radix-ui/themes";
-import IssueStatusBadge from "@/app/componets/IssueStatusBadge";
-import ReactMarkdown from "react-markdown";
+import {Box, Grid} from "@radix-ui/themes";
 import EditIssueButton from "@/app/issues/[id]/EditIssueButton";
 import IssueDetails from "@/app/issues/[id]/IssueDetails";
 
