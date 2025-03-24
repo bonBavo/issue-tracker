@@ -33,9 +33,14 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
   });
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await axios.post("/api/issues", data);
-      router.push("/issues");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      if (issue) {
+        await axios.patch("/api/issues/" + issue.id, data);
+        router.push("/issues");
+        router.refresh();
+      } else {
+        await axios.post("/api/issues", data);
+        router.push("/issues");
+      }
     } catch (error) {
       setError("An unexpected error occurred.");
     }
@@ -73,7 +78,7 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
 
         <ErrorMessage>{errors.description?.message}</ErrorMessage>
 
-        <Button>submit new issue</Button>
+        <Button>{issue ? "Update issue" : "Submit New Issue"}</Button>
       </form>
     </div>
   );

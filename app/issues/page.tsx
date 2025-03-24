@@ -9,7 +9,7 @@ const IssuesPage = async () => {
 
   return (
     <div>
-      <IssuesToolBar/>
+      <IssuesToolBar />
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>
@@ -26,9 +26,7 @@ const IssuesPage = async () => {
           {issues.map((issue) => (
             <Table.Row key={issue.id}>
               <Table.Cell>
-                <Link href={`/issues/${issue.id}`}>
-                {issue.title}
-                </Link>
+                <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
                 <div className="block md:hidden">
                   <IssueStatusBadge status={issue.status} />
                 </div>
@@ -46,5 +44,6 @@ const IssuesPage = async () => {
     </div>
   );
 };
-
+export const dynamic = "force-dynamic"; //renders a page dynamic
+//export const revalidate= 60;
 export default IssuesPage;
